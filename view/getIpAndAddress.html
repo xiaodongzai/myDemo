@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head lang="zh">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<input type="text" id="city"/>
+
+<script src="../js/lib/jquery-2.1.1.min.js"></script>
+<script>
+    //根据客户端IP判定其所在省市
+    //expr：用于筛选元素的jQuery表达式
+    var setClientLocation = function (expr) {
+
+    // 接口返回数据：var lo="浙江省", lc="杭州市"; var localAddress={city:"杭州市", province:"浙江省"}
+                $.ajax({
+                    type: "get",
+                    cache: true,
+                    async: false,
+                    url: "http://ip.ws.126.net/ipquery",
+                    async: false,
+                    dataType: 'script',
+                    scriptCharset: 'utf-8',
+                    success: function () {
+                        if (lo)
+                            $(expr).val($.trim(lo) + '-' + $.trim(lc));
+                    },
+                    error: function() {
+                        //调用新浪接口
+                        //返回样例数据：var ILData = new Array("61.175.198.120","中国", "浙江省", "杭州市", "电信"); if (typeof(ILData_callback) != "undefined") { ILData_callback(); }
+                        $.ajax({
+                            type: "get",
+                            cache: true,
+                            async: false,
+                            timeout: 5000,
+                            url: "http://counter.sina.com.cn/ip/",
+                            dataType: 'script',
+                            scriptCharset: 'gb2312',
+                            success: function () {
+                                if (ILData && ILData[2]) {
+                                    //判断是否为表单元素，选择使用val()还是text()，还未实现
+                                    $(expr).val($.trim(ILData[2]) + '-' + $.trim(ILData[3]));
+                                }
+                            }
+                        });
+                    }
+                });
+    };
+    setClientLocation("#city");
+</script>
+</body>
+</html>
